@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+		<link rel="stylesheet" href="/css/st2.css">
+	</head>
+	<body>
+		<div id="title">
+			<h1>上傳產品資料及圖片</h1>
+		</div>
+		<div class="linklist">
+			<table>
+				<tr>
+					<td width=80 align=center><a href="/manage/product/uploadProduct">產品上架</a>
+					<td width=120 align=center><a href="/manage/product/list">產品總覽及修改</a>
+					<td width=500 align=right><a href="/manage/toMenu">回管理者首頁</a>
+					<td width=100 align=left><a href="/manage/logout">登出</a>
+				</tr>
+			</table>					
+		</div>
+		<div id="content">
+			<form action="/manage/product/upload" method="POST" enctype="multipart/form-data">
+				<fieldset>
+					<legend>產品資訊</legend>
+					productName:<input type="text" name="productName" id="productName" placeholder="請輸入產品名稱" required /><p />
+					price:<input type="number" name="price" id="price" min="0" placeholder="請輸入產品定價" required /><p />
+					是否上架:
+					是<input type="radio" name="isLaunch" value="1" />
+					否<input type="radio" name="isLaunch" value="0" /><p />
+					category:
+					<select name="category">
+						<option value="1">vegetables
+						<option value="2">fruits
+						<option value="3">others
+					</select><p />
+					
+					stock:<input type="number" name="stock" id="stock" min="0" placeholder="請輸入庫存量" required /><p />
+					圖片上傳:<input type="file" name="productFile" id="productFile" accept=".jpg" required /><p />
+					<button type="submit">送出</button>
+				</fieldset>
+			</form>
+		</div>
+		<div id="footer"></div>
+	</body>
+</html>

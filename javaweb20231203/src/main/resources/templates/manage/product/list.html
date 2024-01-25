@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+		<link rel="stylesheet" href="/css/st2.css">
+		<!-- 引入 PureCSS -->
+    	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
+		<!-- 引入 jQuery -->
+    	<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    	<!-- 引入 DataTables CSS -->
+    	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+    	<!-- 引入 DataTables -->
+    	<script type="text/javascript" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    	
+    	<script type="text/javascript">
+			// 當文件載入完成後
+			$(document).ready(function() {
+				$('.pure-table').DataTable({
+
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="title">
+			<h1>產品總覽及修改</h1>
+		</div>
+		<div class="linklist">
+			<table>
+				<tr>
+					<td width=80 align=center><a href="/manage/product/uploadProduct">產品上架</a>
+					<td width=120 align=center><a href="/manage/product/list">產品總覽及修改</a>
+					<td width=500 align=right><a href="/manage/toMenu">回管理者首頁</a>
+					<td width=100 align=left><a href="/manage/logout">登出</a>
+				</tr>
+			</table>					
+		</div>
+		
+		<div id="content_white">
+			<div class="pure-form">
+				<fieldset>
+					<legend>產品清單</legend>
+					<table class="pure-table pure-table-bordered">
+						<thead>
+							<tr>
+								<th>修改</th>
+								<th>產品編號</th>
+								<th>產品名稱</th>
+								<th>價格</th>
+								<th>是否上架</th>
+								<th>類別</th>
+								<th>庫存量</th>
+								<th>圖片</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="product : ${session.Products}">
+								<td>
+									<a th:href="@{/manage/product/update/}+${product.productId}">修改</a>	
+								</td>
+								
+								<td th:text="${product.productId}"></td>
+								<td th:text="${product.productName}" th:onclick=""></td>
+								<td th:text="${product.price}"></td>
+								<td th:text="${product.isLaunch}"></td>
+								<td th:text="${product.category}"></td>
+								<td th:text="${product.stock}"></td>
+								<td width="50px" height="50px">
+									<a th:href="@{/manage/product/picUpdate/}+${product.productId}">
+										<img class="container_img" th:src="@{'/pic/'+${product.picName}}" 
+											title="點我更改圖片" alt="點我新增圖片">
+									</a>
+								</td>
+							</tr>		
+						</tbody>
+					</table>
+				</fieldset>
+			</div>
+		</div>	
+	</body>
+</html>

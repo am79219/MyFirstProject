@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>購物車</title>
+	<link rel="stylesheet" href="/css/st1.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
+</head>
+<body>
+	<!-- header區 -->
+	<div class="header">
+		<h1 style="padding:15px 20px">有機農產品購物網</h1>	
+		<h2 style="padding:5px 20px">購物車</h2>
+	</div>
+	
+	<div class="linklist">
+		<table>
+			<tr>
+				<td>選購商品
+				<td width=60 align=center><a href="/product/vegetables">Vegetables</a>
+				<td width=60 align=center><a href="/product/fruits">Fruits</a>
+				<td width=60 align=center><a href="/product/others">Others</a>
+				<td width=250 align=right><a href="/cart/loginCart">查看購物車</a>
+				<td width=300 align=left><a href="/user/toIndex">回首頁</a>
+			</tr>
+		</table>					
+	</div>
+	
+	<!-- content區 -->
+	<div class="content">
+		<div class="cartItemList">
+			<h2>未結帳的購物車</h2>
+
+			
+			<!-- 如果無未結帳的購物車 -->
+			<div th:if="${session.CartItems == null}">
+				<h3>您尚未將商品放入購物車</h3>
+			</div>
+			
+			<!-- 如果有未結帳的購物車 -->
+			<div th:if="${session.CartItems}">
+				購物車單號:
+					<!-- 有登入會顯示，未登入則空白 -->
+					<div th:if="${session.User}">
+						<label th:text="${session.Cart.cartNo}" />
+					</div><p />
+				
+				會員姓名:
+					<!-- 有登入會顯示，未登入則空白 -->
+					<div th:if="${session.User}">
+						<label th:text="${session.User.name}" />
+					</div><p />
+
+				<table width="300px" border="1">
+					<tr>
+						<td>產品名稱
+						<td>購買數量
+						<td>刪除
+					<tr th:each="cartItem:${session.CartItems}">
+						<td th:text="${cartItem.productId}">
+						<td th:text="${cartItem.quantity}">
+						<td><button type="button">刪除</button>
+				</table>
+			</div>
+			
+			<!-- 如果會員尚未登入，則顯示提示訊息 -->
+			<h3 th:if="${session.User == null}">
+				提醒您，您尚未登入，可能遺失您的購物車明細
+			</h3>
+			
+		</div>
+		
+	</div>
+	
+	<!-- footer區 -->
+	<div class="footer">
+		© 2023 XXXXXY. All rights reserved.
+	</div>
+	
+
+</body>
+</html>

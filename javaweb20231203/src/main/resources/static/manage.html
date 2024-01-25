@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>管理者頁面</title>
+		<link rel="stylesheet" href="css/st2.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
+	</head>
+	<body>
+		<div id="title">
+			<h1>管理者登入</h1>
+		</div>
+		<div id="content">
+			<form class="pure-form" action="/manage/menu" method="post">
+				<fieldset>
+					<legend>輸入帳號密碼</legend>
+					帳號:<input type="text" name="username" id="username" placeholder="請輸入帳號" required /><p />
+					密碼:<input type="password" name="password" id="password" placeholder="請輸入密碼" required /><p />
+					<input class="pure-button pure-button-primary" type="submit" value="OK">
+				</fieldset>
+			</form>
+		</div>
+		<div id="footer"></div>
+	</body>
+</html>

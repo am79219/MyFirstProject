@@ -1,0 +1,37 @@
+@charset "UTF-8";
+
+#title{
+	background-color:#4A9B5A;
+	height:120px;
+	padding: 20px;
+}
+
+.linklist{
+	padding: 0 100px;
+	height: 30px;
+	background-color:#bce0f0;
+}
+
+#content{
+	background-color:#B5DDA4;
+	height:450px;
+	padding-top: 40px;
+	padding-left: 30px;
+}
+
+#content_white{
+	height:450px;
+	padding-top: 40px;
+	padding-left: 30px;
+}
+
+#footer{
+	background-color:#0E3D2F;
+	height:80px;
+}
+
+.container_img {
+    width: 100%; /* 圖片寬度設為 100%，使其自動縮放以符合寬度 */
+    height: auto; /* 高度自動調整，以保持圖片的原始比例 */
+    display: block; /* 去除底部空白，使圖片緊密貼合*/
+}

@@ -1,0 +1,132 @@
+@charset "UTF-8";
+
+.banner {
+	height: 80px;
+	border: 1px solid black;
+	background-position: center;
+	background-size: cover;
+	background-image: url(/pic/banner_sample.jpg);
+	opacity: 0.5;
+}
+
+.header {
+	height: 150px;
+	border: 1px solid black;
+	background-color:#247ba0;
+}
+
+.inner {
+	padding: 0 14px;
+	height: 20%;
+	border-style: dotted;
+	background-color:#bce0f0;
+}
+
+.linklist{
+	padding: 0 100px;
+	height: 30px;
+	border: 1px solid black;
+	background-color:#bce0f0;
+}
+
+.cover {
+	height: 410px;
+	border: 1px solid black;
+	background-position: center;
+	background-size: cover;
+	background-image: url(/pic/cover_sample.jpg);
+}
+
+.content{
+	margin-bottom:30px;
+	border: 1px solid black;
+	background-color:#F3FFBD;
+}
+
+.product_content{
+	height: 1000px;
+	margin-bottom:30px;
+	border: 1px solid black;
+	background-color:#F3FFBD;
+}
+
+.loginForm{
+	padding: 30px 50px;
+	height: 300px;
+	 
+}
+
+.addUserForm{
+	padding: 30px 50px;
+	height: 400px;
+	 
+}
+
+.productList{
+	padding: 30px 50px;
+}
+
+.menu{
+	overflow: auto;
+}
+
+.puoductList_ul{
+	list-style: none; /* 移除項目點 */
+    padding: 0; /* 清除預設的 padding */
+    margin: 0; /* 清除預設的 margin */
+}
+
+.puoductList_li{	
+	float: left; /* 讓 li 水平排列 */
+    width: 200px; /* 設定每個 li 的寬度 */
+    margin: 10px; /* 設定間距 */
+}
+
+.puoductList_a{
+	display: block;
+	width: 150px;
+	height: 150px;
+}
+
+.productInfo{
+	padding: 50px 50px;
+}
+
+.container{
+    width: 300px;
+    height: 200px;
+    border: 1px solid #ccc; /* 加入一點邊框以便看得更清楚 */
+    overflow: hidden; /* 如果圖片超出div大小，將被隱藏而不是溢出 */
+}
+
+.container img {
+    width: 100%; /* 圖片寬度設為 100%，使其自動縮放以符合 div 的寬度 */
+    height: auto; /* 高度自動調整，以保持圖片的原始比例 */
+    display: block; /* 去除底部空白，使圖片緊密貼合 div */
+}
+
+.cartItemList{
+	padding: 30px 50px;
+}
+
+.bottom_info{
+	margin-bottom:30px;
+	border: 1px solid black;
+	background-color:#d5d5d5;
+}
+
+.notice_box{
+	height:200px;
+	width:60%;
+	padding:20px 0 20px 30px;
+	border-style:dotted;
+	background-color:orange;
+}
+
+.footer {
+	height: 50px;
+	border: 1px solid black;
+	background-color: black;
+	color:white; 
+}
+

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>有機農產品購物網</title>
+	<link rel="stylesheet" href="/css/st1.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
+</head>
+<body>
+	<!-- banner區 -->
+	<div class="banner">
+		<h1 style="padding:15px 20px">有機農產品購物網</h1>
+	</div>
+	
+	<!-- header區 -->
+	<div class="header">
+		<div class="inner">
+		
+			<!-- 如果User尚未登入，顯示會員登入及會員註冊 -->
+			<label th:if="${session.User == null}">
+				<a href="/login.html" title="會員登入">會員登入</a>
+				<a href="/addUser.html" title="會員註冊">會員註冊</a>
+			</label>
+			
+			<!-- 如果User已登入，顯示會員資料管理及訂單管理 -->
+			<label th:if="${session.User}">
+				<a href="" title="會員資料管理">會員資料管理</a>
+				<a href="" title="訂單管理">訂單管理</a>
+			</label>
+			
+			<a href="/cart/loginCart" title="購物車">購物車</a>
+			
+			<!-- 如果User尚未登入，歡迎訪客 -->
+			<label style="margin-left:50px; font-size:30px;"
+				th:if="${session.User == null}">訪客</label>
+			<!-- 如果User已登入，歡迎會員姓名 -->
+			<label style="margin-left:50px; font-size:30px;"
+				th:if="${session.User}" th:text="${session.User.name}"></label>
+			<label style="font-size: 20px;">，歡迎您～</label>
+			
+			<!-- 如果User已登入，顯示登出連結 -->
+			<label th:if="${session.User}">
+				<a href="/user/logout" title="登出">登出</a>
+			</label>
+			
+		</div>
+		<h1 style="padding:15px 20px">有機農產品購物網</h1>
+	</div>
+	
+	<!-- cover區 -->
+	<div class="cover">
+		cover區
+	</div>
+	
+	
+	<!-- content區 -->
+	<div class="content">
+		<table width=90% align="center" border="1">
+			<tr align="center">
+				<td width="400px">
+					Vegetables
+					<a href="/product/vegetables">
+						<img src="/pic/vegetables.jpg" alt="vegetables">
+					</a>
+				<td width="400px">
+					Fruits
+					<a href="/product/fruits">
+						<img src="/pic/fruits.jpg" alt="fruits">
+					</a>
+				<td width="400px">
+					Others
+					<a href="/product/others">
+						<img src="/pic/others.jpg" alt="others">
+					</a>
+		</table>
+	</div>
+	
+		
+	<!-- bottom_info區 -->
+	<div class="bottom_info">
+		<div class="notice_box">
+			<div class="notice_title">最新消息</div>
+			<div class="notice_list">
+				<h2>日期 & 公告內容</h2>
+				<p>2023.12.09 12/12促銷活動預告</p>
+				<p>2023.12.01 會員限時免運來囉~!!!</p>
+			</div>
+			<div class="more_area">
+				<a href="" class="more">看更多</a>
+			</div>
+		</div>
+	</div>
+	
+	<!-- footer區 -->
+	<div class="footer">
+		© 2024 XXXXXY. All rights reserved.
+	</div>
+</body>
+</html>

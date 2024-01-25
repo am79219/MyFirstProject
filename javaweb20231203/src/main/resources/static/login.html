@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>會員登入</title>
+	<link rel="stylesheet" href="/css/st1.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
+</head>
+<body>
+	<!-- header區 -->
+	<div class="header">
+		<h1 style="padding:15px 20px"><a href="/user/toIndex">有機農產品購物網</a></h1>
+		<h2 style="padding:5px 20px">會員登入</h2>
+	</div>
+	
+	<!-- content區 -->
+	<div class="content">
+		<div class="loginForm">
+			<form action="/user/login" method="post" class="pure-form">
+				<fieldset>
+					<legend>會員登入</legend>
+					帳號:<input type="text" name="username" required /><p />
+					密碼:<input type="password" name="password" required /><p />
+					<input type="submit" value="登入" class="pure-button pure-button-primary">
+					<a href="/addUser.html" class="pure-button">註冊</a>
+				</fieldset>
+			</form>
+		</div>
+		
+	</div>
+	
+	<!-- footer區 -->
+	<div class="footer">
+		© 2023 XXXXXY. All rights reserved.
+	</div>
+	
+
+</body>
+</html>

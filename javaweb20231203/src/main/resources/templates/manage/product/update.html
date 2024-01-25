@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- 引入 PureCSS -->
+<link rel="stylesheet" href="/css/st2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
+</head>
+<body>
+	<div id="title">
+		<h1>產品更新頁</h1>
+	</div>
+	<div class="linklist">
+		<table>
+			<tr>
+				<td width=80 align=center><a href="/manage/product/uploadProduct">產品上架</a>
+				<td width=120 align=center><a href="/manage/product/list">產品總覽及修改</a>
+				<td width=500 align=right><a href="/manage/toMenu">回管理者首頁</a>
+				<td width=100 align=left><a href="/manage/logout">登出</a>
+			</tr>
+		</table>					
+	</div>
+	<div id="content_white">
+		<form action="/manage/product/updateConfirm" method="POST" class="pure-form">
+		<fieldset>
+			<legend>產品資料變更</legend>
+			<input type="hidden" name="productId" id="productId" th:value="${session.p.productId}">
+			productName:<input type="text" name="productName" id="productName" th:value="${session.p.productName}" required /><p />
+			price:<input type="number" name="price" id="price" min="0" th:value="${session.p.price}" required /><p />
+			是否上架:
+			是<input type="radio" name="isLaunch" value="1" />
+			否<input type="radio" name="isLaunch" value="0" /><p />
+			category:
+			<select name="category">
+				<option value="1">vegetables
+				<option value="2">fruits
+				<option value="3">others
+			</select><p />
+			stock:<input type="number" name="stock" id="stock" min="0" th:value="${session.p.stock}" required /><p />
+			<button type="submit">更新資料</button>
+		</fieldset>
+		</form>
+	</div>
+</body>
+</html>

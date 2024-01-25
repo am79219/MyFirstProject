@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>商品專區</title>
+	<link rel="stylesheet" href="/css/st1.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
+</head>
+<body>
+	<!-- header區 -->
+	<div class="header">
+		<h1 style="padding:15px 20px">有機農產品購物網</h1>
+		<h2 style="padding:5px 20px">商品專區</h2>
+	</div>
+	
+	<div class="linklist">
+		<table>
+			<tr>
+				<td>選購商品
+				<td width=60 align=center><a href="/product/vegetables">Vegetables</a>
+				<td width=60 align=center><a href="/product/fruits">Fruits</a>
+				<td width=60 align=center><a href="/product/others">Others</a>
+				<td width=250 align=right><a href="/cart/loginCart">查看購物車</a>
+				<td width=300 align=left><a href="/user/toIndex">回首頁</a>
+			</tr>
+		</table>					
+	</div>
+	
+	<!-- content區 -->
+	<div class="product_content">
+		<div class="productList">
+			<h2>Others</h2>
+				<div class="menu">
+					<ul class="puoductList_ul">
+						<li class="puoductList_li" th:each=" other: ${session.Products}">
+							<a class="puoductList_a"
+							   th:href="@{/product/info/{productId}(productId=${other.productId})}">
+								<img th:src="@{'/pic/'+${other.picName}}" style="width: 150px; height: 150px;">
+							</a><br>
+							商品名稱:<label th:text="${other.productName}"></label><br>
+							價格:<label th:text="${other.price}"></label><br>
+						</li>						
+					</ul>
+				</div>
+		</div>
+	</div>
+	<!-- footer區 -->
+	<div class="footer">
+		© 2023 XXXXXY. All rights reserved.
+	</div>
+	
+
+</body>
+</html>
