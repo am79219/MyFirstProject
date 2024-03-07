@@ -1,10 +1,17 @@
 package com.example.demo.service;
 
-import java.util.Optional;
-
-import com.example.demo.vo.Cart;
+import com.example.demo.model.dto.CartDto;
+import com.example.demo.model.vo.Cart;
 
 public interface CartService {
-	void getNotcheckedCartInfoFromDB(Integer userId);
+	//create
+	void createNewCart(Integer userId);
+	
+	//read
+	CartDto getNotcheckedCartDtoByUserId(Integer userId);
+	
+	//update
+	
+	//delete
 
 }

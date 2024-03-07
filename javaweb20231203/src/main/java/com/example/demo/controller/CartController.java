@@ -13,7 +13,6 @@ public class CartController {
 	@GetMapping("/loginCart") 
 	public ModelAndView loginCart() {
 		return new ModelAndView("/cart/cartList");
-
 	}
 	
 

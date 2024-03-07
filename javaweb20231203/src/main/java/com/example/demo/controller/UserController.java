@@ -6,26 +6,30 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import com.example.demo.mapper.UserMapper;
-import com.example.demo.service.impl.CartServiceImpl;
-import com.example.demo.service.impl.UserServiceImpl;
-import com.example.demo.vo.User;
+
+import com.example.demo.model.dto.UserDto;
+import com.example.demo.model.dto.CartDto;
+import com.example.demo.model.dto.CartItemDto;
+import com.example.demo.service.UserService;
+import com.example.demo.service.CartService;
+import com.example.demo.service.CartItemService;
+
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import com.example.demo.vo.CartItem;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
 
 public class UserController {
 	@Autowired
-	private UserServiceImpl usi;
+	private UserService userService;
 	
 	@Autowired
-	private UserMapper um;
+	private CartService cartService;
 	
 	@Autowired
-	private CartServiceImpl csi;
+	private CartItemService cartItemService;
 	
 	@Autowired
 	private HttpSession session;
@@ -33,26 +37,47 @@ public class UserController {
 	@PostMapping("/login")
 	public ModelAndView login(String username,String password) {
 		ModelAndView mav = null;
+		UserDto userDto = userService.loginConfirm(username, password);
 		//1. 帳密正確，登入成功
-		if(usi.loginInfoConfirm(username, password)) {
-			//建立session-User
-			User user = um.getUserByUsername(username);
-			session.setAttribute("User", user);
+		if(userDto!=null) {
+			//A. 建立session-userDto
+			session.setAttribute("userDto", userDto);
 			
-			//判斷是否在登入前是否有購物行為
-			List<CartItem> cartItems = (List<CartItem>) session.getAttribute("CartItems");
-			//A. 沒有的話
-			if(cartItems==null) {
-				//從資料庫查詢該會員是否有購物車及購物車明細資料
-				//有的話從資料庫抓出，建立Session_Cart & CartItems
-				csi.getNotcheckedCartInfoFromDB(user.getUserId());
-			}else {
-			//B. 有的話
-				//將登入前的購物行為，儲存至資料庫(確保Session_Cart & CartItems是最新資料)
-				csi.saveCartInfoToDB(cartItems,user.getUserId());
-				
+			//B. 判斷會員在登入前是否有購物行為
+			Map<Integer,CartItemDto> cartItemDtoMap = (Map<Integer,CartItemDto>) session.getAttribute("cartItemDtoMap");
+			if(cartItemDtoMap!=null) {
+				// 有的話，將登入前的購物行為，儲存至資料庫
+				cartItemService.saveCartInfoToDB(cartItemDtoMap,userDto.getUserId());
 			}
-						
+			
+			//C. 資料庫是否有未結帳購物車
+			CartDto uncheckedCartDto = cartService.getNotcheckedCartDtoByUserId(userDto.getUserId());
+			if(uncheckedCartDto!=null) {
+				//有的話
+				//a. 建立session-UncheckedCartDto
+				session.setAttribute("uncheckedCartDto", uncheckedCartDto);
+				
+				//b. 判斷該購物車內是否有商品
+				cartItemDtoMap= cartItemService.findCartItemDtosByCartId(uncheckedCartDto.getCartId());
+				
+				if(cartItemDtoMap!=null) {
+					// 有的話
+					// 更新每筆購物明細的產品資料(為了給前端渲染)
+					for( Map.Entry<Integer,CartItemDto> entry : cartItemDtoMap.entrySet()) {
+						CartItemDto cartItemDto = entry.getValue();
+						cartItemService.updateProductInfoForCartItemDto(cartItemDto);
+					}
+					
+					
+					// 建立session-CartItemDtos
+					session.setAttribute("cartItemDtoMap", cartItemDtoMap);
+					System.out.println(cartItemDtoMap.size());
+				}	
+			}
+			System.out.println(userDto);
+			System.out.println(cartItemDtoMap);
+			System.out.println(uncheckedCartDto);
+			
 			mav = new ModelAndView("/user/loginSuccess");
 		}else {
 		//2. 登入失敗
@@ -62,13 +87,12 @@ public class UserController {
 	}
 	
 	@PostMapping("/addUser")
-	public ModelAndView addUser(String name,String username,String password,String email) {
+	public ModelAndView addUser(UserDto userDto) {
 		ModelAndView mav = null;
-		if(um.getUserByUsername(username) != null) {
+		if(userService.isUsernameDuplicate(userDto.getUsername())) {
 			mav = new ModelAndView("/user/addUserError");
 		}else {
-			User user= new User(name,username,password,email,1);
-			um.addUser(user);
+			userService.addUser(userDto);
 			mav = new ModelAndView("/user/addUserSuccess");
 		}
 		return mav;
@@ -81,11 +105,9 @@ public class UserController {
 	
 	@GetMapping("/logout")
 	public ModelAndView logout() {
-		session.removeAttribute("User");
-		session.removeAttribute("Cart");
-		session.removeAttribute("CartItems");
+		session.removeAttribute("userDto");
+		session.removeAttribute("uncheckedCartDto");
+		session.removeAttribute("cartItemDtoMap");
 		return new ModelAndView("/user/logout");
 	}
-	
-	
 }

@@ -16,13 +16,13 @@
 		<div class="inner">
 		
 			<!-- 如果User尚未登入，顯示會員登入及會員註冊 -->
-			<label th:if="${session.User == null}">
+			<label th:if="${session.userDto == null}">
 				<a href="/login.html" title="會員登入">會員登入</a>
 				<a href="/addUser.html" title="會員註冊">會員註冊</a>
 			</label>
 			
 			<!-- 如果User已登入，顯示會員資料管理及訂單管理 -->
-			<label th:if="${session.User}">
+			<label th:if="${session.userDto}">
 				<a href="" title="會員資料管理">會員資料管理(未完成)</a>
 				<a href="" title="訂單管理">訂單管理(未完成)</a>
 			</label>
@@ -31,14 +31,14 @@
 			
 			<!-- 如果User尚未登入，歡迎訪客 -->
 			<label style="margin-left:50px; font-size:30px;"
-				th:if="${session.User == null}">訪客</label>
+				th:if="${session.userDto == null}">訪客</label>
 			<!-- 如果User已登入，歡迎會員姓名 -->
 			<label style="margin-left:50px; font-size:30px;"
-				th:if="${session.User}" th:text="${session.User.name}"></label>
+				th:if="${session.userDto}" th:text="${session.userDto.name}"></label>
 			<label style="font-size: 20px;">，歡迎您～</label>
 			
 			<!-- 如果User已登入，顯示登出連結 -->
-			<label th:if="${session.User}">
+			<label th:if="${session.userDto}">
 				<a href="/user/logout" title="登出">登出</a>
 			</label>
 			

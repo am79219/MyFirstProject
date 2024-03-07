@@ -25,7 +25,7 @@
 			</tr>
 		</table>					
 	</div>
-	
+		
 	<!-- content區 -->
 	<div class="content">
 		<div class="productInfo">
@@ -34,20 +34,20 @@
 					<td width=400px>
 						<!-- 左邊:產品圖片 -->
 						<div class="container">
-							<img th:src="@{'/pic/'+${session.PInfo.picName}}">
+							<img th:src="@{'/pic/'+${productDto.picName}}">
 						</div> 
 					<td width=400px rowspan=2>
 						<!-- 右邊:產品資訊 -->
 						<form action="/cartitem/addAnCartItem" method="POST">
 							<!-- 隱藏的 productId input -->
-							<input type="hidden" name="productId" th:value="${session.PInfo.productId}">
+							<input type="hidden" name="productId" th:value="${productDto.productId}">							
 							<table style="font-size:20px">
 								<tr>
 									<td width=100px height=50px>產品名稱
-									<td th:text="${session.PInfo.productName}" />
+									<td th:text="${productDto.productName}" />
 								<tr>
 									<td height=50px>單價
-									<td th:text="${session.PInfo.price}">
+									<td th:text="${productDto.price}">
 								<tr>
 									<td height=50px>購買數量
 									<td><input type="number" name="quantity" min="0" placeholder="請輸入數量" required />
@@ -55,13 +55,11 @@
 									<td height=100px colspan="2" align=center>
 									<input type="submit" value="加入至購物車">
 							</table>
-							
-							
 						</form>	
 					</tr>
-				<tr height=100px>
-					<td>
-				</tr>
+					<tr height=100px>
+						<td>
+					</tr>
 			</table>
 		</div>
 	</div>

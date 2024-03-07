@@ -26,8 +26,8 @@
 		<form action="/manage/product/picUpdateConfirm" method="POST" class="pure-form" enctype="multipart/form-data">
 			<fieldset>
 				<legend>上傳新的產品圖片</legend>
-				<input type="hidden" name="productId" id="productId" th:value="${session.p.productId}">
-				產品名稱:<label th:text="${session.p.productName}"></label><p />
+				<input type="hidden" name="productId" id="productId" th:value="${productDtoForModify.productId}">
+				產品名稱:<label th:text="${productDtoForModify.productName}"></label><p />
 				圖片上傳:<input type="file" name="productFile" id="productFile" accept=".jpg" required /><p />
 				<button type="submit">上傳並更新</button>
 			</fieldset>

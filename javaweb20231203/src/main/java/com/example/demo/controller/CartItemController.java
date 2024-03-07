@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import com.example.demo.service.impl.CartItemServiceImpl;
+
+import com.example.demo.model.dto.CartItemDto;
+import com.example.demo.service.CartItemService;
 
 
 @RestController
@@ -13,13 +16,21 @@ import com.example.demo.service.impl.CartItemServiceImpl;
 
 public class CartItemController {
 	@Autowired
-	private CartItemServiceImpl cisi;
-	
-	
+	private CartItemService cartItemService;
+		
 	@PostMapping("/addAnCartItem")
 	public ModelAndView addAnCartItem(Integer productId,Integer quantity) {		
-		cisi.AddAnCartItem(productId, quantity);
+		CartItemDto cartItemDto = new CartItemDto();
+		cartItemDto.setProductId(productId);
+		cartItemDto.setQuantity(quantity);
+		cartItemService.addAnCartItemDto(cartItemDto);
 	    return new ModelAndView("/cart/cartList");
+	}
+	
+	@GetMapping("/deleteAnCartItem")
+	public ModelAndView deleteAnCartItem(Integer cartItemId) {
+		//cartItemService.deleteAnCartItemDto(cartItemId); //方法尚未寫好
+		return new ModelAndView("/cart/cartList");
 	}
 
 }

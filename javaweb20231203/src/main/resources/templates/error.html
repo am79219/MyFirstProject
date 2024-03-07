@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF8">
+<meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
 <body>
-	<h1>管理者錯誤頁面</h1>
-	<h3 th:text="${manageError}"></h3>
+	<h1>錯誤頁面</h1>
 	
+	<div th:if="${errorMessage != null}">
+		<h3 th:text="${errorMessage}"></h3>
+	</div>
 </body>
 </html>

@@ -1,15 +1,11 @@
 package com.example.demo.controller;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,12 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.example.demo.mapper.ProductMapper;
-import com.example.demo.mapper.UserMapper;
+import com.example.demo.model.dto.ProductDto;
+import com.example.demo.model.dto.UserDto;
 import com.example.demo.service.ManageService;
+import com.example.demo.service.ProductService;
 import com.example.demo.service.UserService;
-import com.example.demo.vo.Product;
-import com.example.demo.vo.User;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,129 +29,151 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/manage")
 public class ManageController {
 	@Autowired
-	private ProductMapper pm;
+	private UserService userService;
+	
 	@Autowired
-	private UserMapper um;
+	private ProductService productService;
+	
+	@Autowired
+	private ManageService manageService;
+	
 	@Autowired
 	private HttpServletResponse response;
+	
 	@Autowired
 	private HttpSession session;
-	@Autowired
-	private UserService us;
-	@Autowired
-	private ManageService ms;
-	
-	//0. 管理者登入-驗證帳號密碼-切換到menu
+
+	//1. 管理者登入-驗證帳號密碼-切換到menu
 	@PostMapping("/menu")
-	public ModelAndView toManageMenu(String username,String password) {
-		if(us.loginInfoConfirmForManage(username, password)) {
-			User manage = um.getUserByUsernameForManage(username);
-			session.setAttribute("Manage",manage);
+	public ModelAndView toManageMenu(String username, String password, Model model) {
+		UserDto manageDto = userService.loginConfirmForManage(username, password);
+		if(manageDto!=null) {
+			session.setAttribute("manageDto",manageDto);
 			return new ModelAndView("/manage/menu");
 		}
-		return new ModelAndView("/manage/loginError");
-	}
-	
-	//0. 切換到menu(已登入狀態)
-	@GetMapping("/toMenu")
-	public ModelAndView toMenu() {
-		if(session.getAttribute("Manage")!=null) {
-			return new ModelAndView("/manage/menu");
-		}
+		String manageError = "管理者登入帳密錯誤";
+		model.addAttribute("manageError",manageError);
 		return new ModelAndView("/manage/error");
 	}
 	
-	//0. 登出
+	//2. 切換到menu(已登入狀態)
+	@GetMapping("/toMenu")
+	public ModelAndView toMenu(Model model) {
+		if(session.getAttribute("manageDto")!=null) {
+			return new ModelAndView("/manage/menu");
+		}
+		String manageError = "您尚未登入，無法切換至管理者menu";
+		model.addAttribute("manageError",manageError);
+		return new ModelAndView("/manage/error");
+	}
+	
+	//3. 登出
 	@GetMapping("/logout")
 	public void logout() throws IOException {
-		session.removeAttribute("Manage");
+		session.removeAttribute("manageDto");
 		response.sendRedirect("/manage.html");
 	}
 	
-	//1. 單純切換頁面-產品上傳頁
+	//4. 切換到產品上傳頁
 	@GetMapping("/product/uploadProduct")
-	public ModelAndView toUploadProduct() {
-		return new ModelAndView("/manage/product/uploadProduct");
+	public ModelAndView toUploadProduct(Model model) {
+		if(session.getAttribute("manageDto")!=null) {
+			return new ModelAndView("/manage/product/uploadProduct");
+		}
+		String manageError = "您尚未登入，無法切換至產品上傳頁";
+		model.addAttribute("manageError",manageError);
+		return new ModelAndView("/manage/error");
 	}
 	
-	//2. 上傳產品資料(包含圖片)
+	//4.1 上傳產品資料(包含圖片)
 	@PostMapping(value = "/product/upload", 
 			consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ModelAndView uploadProduct(
 			@RequestPart(value = "productFile") MultipartFile productFile, 
-			String productName, int price, int isLaunch, int category, int stock) 
+			ProductDto productDto, Model model) 
 					throws IOException, ServletException {
 		//將圖片存到指定位置(專案或本地端)
-		ms.SaveProductPicture(productFile);
+		manageService.SaveProductPicture(productFile);
 				
 		//新增該筆資料到資料庫
 		String picName=productFile.getOriginalFilename();
-		pm.add(productName, price, isLaunch, category, stock ,picName);
+		productDto.setPicName(picName);
+		productService.addAnProductDto(productDto);
 		
-		//切換到所有上傳成功頁面
+		//切換到產品上傳成功頁面
 		return new ModelAndView("/manage/product/uploadSuccess");
 	}
 	
-	//3. 產品總覽
+	//5. 切換到產品清單頁
 	@GetMapping("/product/list")
-	public ModelAndView productList() {
-		List<Product> products = pm.findAll();
-		session.setAttribute("Products", products);
-		
-		//切換到所有產品清單頁面
-		return new ModelAndView("/manage/product/list");
+	public ModelAndView productList(Model model) {
+		if(session.getAttribute("manageDto")!=null) {
+			List<ProductDto> productDtosForManage = productService.findAllProductDtos();
+			model.addAttribute("productDtosForManage", productDtosForManage);
+			//切換到所有產品清單頁
+			return new ModelAndView("/manage/product/list");
+		}
+		String manageError = "您尚未登入，無法切換至產品清單頁";
+		model.addAttribute("manageError",manageError);
+		return new ModelAndView("/manage/error");
 	}
 	
-	//4. 切換到產品更改頁面
+	//6. 切換到單筆產品修改頁
 	@GetMapping("/product/update/{productId}")
-	public ModelAndView toUpdate(@PathVariable("productId") Integer productId) {
-		Product product = pm.getProductById(productId);
-		session.setAttribute("p",product);
-		return new ModelAndView("/manage/product/update");
+	public ModelAndView toUpdate(@PathVariable("productId") Integer productId, Model model) {
+		if(session.getAttribute("manageDto")!=null) {
+			ProductDto productDtoForModify = productService.getProductDtoById(productId);
+			model.addAttribute("productDtoForModify",productDtoForModify);
+			//切換到單筆產品修改頁
+			return new ModelAndView("/manage/product/update");
+		}
+		String manageError = "您尚未登入，無法切換至產品修改頁";
+		model.addAttribute("manageError",manageError);
+		return new ModelAndView("/manage/error");
 	}
 	
-	//5. 更新單筆資料，回產品總覽頁
+	//6.1 更新單筆資料，回產品清單頁
 	@PostMapping("/product/updateConfirm")
-	public ModelAndView updateConfirm(Product p) {
+	public void updateConfirm(ProductDto productDto, Integer productId) throws IOException {
+		System.out.println(productDto.toString());
+		
 		//更新單筆資料
-		pm.updateProductById(p.getProductName(), p.getPrice(), p.getIsLaunch(), p.getCategory(), p.getStock(), p.getProductId());
+		productService.updateProductById(productDto, productId);
 		
-		//重新查詢所有產品清單
-		List<Product> products = pm.findAll();
-		session.setAttribute("Products", products);
-		
-		//切換到產品總覽頁
-		return new ModelAndView("/manage/product/list");
+		//重導:切換到產品清單頁
+		response.sendRedirect("/manage/product/list");
 	}
 	
-	//6. 切換到更改產品圖片頁面
+	//7. 切換到單筆產品圖片修改頁
 	@GetMapping("/product/picUpdate/{productId}")
-	public ModelAndView topicUpdate(@PathVariable("productId") Integer productId) {
-		Product product = pm.getProductById(productId);
-		session.setAttribute("p",product);
-		return new ModelAndView("/manage/product/picUpdate");
+	public ModelAndView toPicUpdate(@PathVariable("productId") Integer productId, Model model) {
+		if(session.getAttribute("manageDto")!=null) {
+			
+			ProductDto productDtoForModify = productService.getProductDtoById(productId);
+			model.addAttribute("productDtoForModify",productDtoForModify);
+			//切換到單筆產品圖片修改頁
+			return new ModelAndView("/manage/product/picUpdate");
+		}
+		String manageError = "您尚未登入，無法切換至產品圖片修改頁";
+		model.addAttribute("manageError",manageError);
+		return new ModelAndView("/manage/error");		
 	}
 	
-	//7. 上傳並更新產品圖片，回產品總覽頁
+	//7.1 上傳並更新單筆產品圖片，回產品清單頁
 	@PostMapping(value = "/product/picUpdateConfirm",
 			consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ModelAndView picUpdateConfirm(
+	public void picUpdateConfirm(
 			@RequestPart(value = "productFile") MultipartFile productFile, 
 			Integer productId) throws IOException {
 		
 		//將圖片存到指定位置(專案或本地端)
-		ms.SaveProductPicture(productFile);
+		manageService.SaveProductPicture(productFile);
 		
 		//修改資料庫的picName
 		String picName=productFile.getOriginalFilename();
-		pm.updatePicNameById(picName,productId);
+		productService.updateProductPicNameById(picName, productId);
 		
-		//重新查詢所有產品清單
-		List<Product> products = pm.findAll();
-		session.setAttribute("Products", products);
-		
-		//切換到產品總覽頁
-		return new ModelAndView("/manage/product/list");
+		//重導:切換到產品清單頁
+		response.sendRedirect("/manage/product/list");
 	}
-
 }

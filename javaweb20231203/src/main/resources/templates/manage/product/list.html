@@ -55,7 +55,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr th:each="product : ${session.Products}">
+							<tr th:each="product : ${productDtosForManage}">
 								<td>
 									<a th:href="@{/manage/product/update/}+${product.productId}">修改</a>	
 								</td>

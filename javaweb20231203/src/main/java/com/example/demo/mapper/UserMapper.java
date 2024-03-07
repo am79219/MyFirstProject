@@ -1,10 +1,14 @@
 package com.example.demo.mapper;
 
+import java.util.Optional;
+
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
-import com.example.demo.vo.User;
+import com.example.demo.model.vo.User;
 
 @Mapper
 
@@ -16,14 +20,21 @@ public interface UserMapper {
 	
 	//Read
 	@Select("select userId, name, username, password, email, level from user where username=#{username}")
-	User getUserByUsername(String username);
+	Optional<User> getUserByUsername(String username);
 	
 	@Select("select userId, name, username, password, email, level from user where username=#{username} and level=2")
-	User getUserByUsernameForManage(String username);
+	Optional<User> getUserByUsernameForManage(String username);
 	
+	@Select("select userId, name, username, password, email, level from user where userId=#{userId}")
+	Optional<User> getUserById(Integer userId);
 	
 	//Update
+	@Update("update user set name=#{name}, password=#{password}, email=#{eamil} where userId=#{userId}")
+	void updateUserInfoById(User user, Integer userId);
 	
 	//Delete
+	@Delete("delete from user where userId=#{userId}")
+	void deleteUserById(Integer userId);
+	
 
 }

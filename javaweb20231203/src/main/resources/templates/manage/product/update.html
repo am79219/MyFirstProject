@@ -25,9 +25,9 @@
 		<form action="/manage/product/updateConfirm" method="POST" class="pure-form">
 		<fieldset>
 			<legend>產品資料變更</legend>
-			<input type="hidden" name="productId" id="productId" th:value="${session.p.productId}">
-			productName:<input type="text" name="productName" id="productName" th:value="${session.p.productName}" required /><p />
-			price:<input type="number" name="price" id="price" min="0" th:value="${session.p.price}" required /><p />
+			<input type="hidden" name="productId" id="productId" th:value="${productDtoForModify.productId}">
+			productName:<input type="text" name="productName" id="productName" th:value="${productDtoForModify.productName}" required /><p />
+			price:<input type="number" name="price" id="price" min="0" th:value="${productDtoForModify.price}" required /><p />
 			是否上架:
 			是<input type="radio" name="isLaunch" value="1" />
 			否<input type="radio" name="isLaunch" value="0" /><p />
@@ -37,7 +37,7 @@
 				<option value="2">fruits
 				<option value="3">others
 			</select><p />
-			stock:<input type="number" name="stock" id="stock" min="0" th:value="${session.p.stock}" required /><p />
+			stock:<input type="number" name="stock" id="stock" min="0" th:value="${productDtoForModify.stock}" required /><p />
 			<button type="submit">更新資料</button>
 		</fieldset>
 		</form>

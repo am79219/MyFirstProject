@@ -1,10 +1,41 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
 	<meta charset="UTF-8">
 	<title>購物車</title>
 	<link rel="stylesheet" href="/css/st1.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
+	<script>
+	function calculateSubtotal(){
+		var subtotal = 0;
+		var subtotalInput = document.getElementById("subtotal");
+		var productSubtotals = document.querySelectorAll("[id^='productSubtotal_']");
+		productSubtotals.forEach(function(productSubtotal){
+			subtotal += parseInt(productSubtotal.textContent);
+		});
+		subtotalInput.textContent = subtotal;
+	}
+	
+	function calculateShippingFee(){
+		var shippingFeeInput = document.getElementById("shippingFee");
+		var subtotalInput = document.getElementById("subtotal");
+		
+		if(parseInt(subtotalInput.textContent)>=500){
+			shippingFeeInput.textContent = 0;
+		}else{
+			shippingFeeInput.textContent = 50;
+		}
+	}
+	
+	function calculateTotalAmount(){
+		var totalAmountInput = document.getElementById("totalAmount");
+		var subtotalInput = document.getElementById("subtotal");
+		var shippingFeeInput = document.getElementById("shippingFee");
+		
+		totalAmountInput.textContent =
+			parseInt(subtotalInput.textContent)+parseInt(shippingFeeInput.textContent);
+	}
+	</script>
 </head>
 <body>
 	<!-- header區 -->
@@ -60,46 +91,59 @@
 						<td nowrap>產品金額小計
 						<td nowrap>庫存
 						<td nowrap>刪除
-					<tr th:each="entry:${session.cartItemDtoMap}">
+					<tr th:each="cartItem:${session.CartItems}">
 						<td width="50px" height="50px" align="center">
 							<img style="width:50%; height:auto;"
-							     th:src="@{/pic/{picName}(picName=${entry.value.product.picName})}">
-						<td th:text="${entry.value.product.productName}">
-						<td th:text="${entry.value.product.price}">
-						<td th:text="${entry.value.quantity}">
-						<td id="productSubtotal_${entry.value.product.productId}" th:text="${entry.value.product.price}*${entry.value.quantity}">
-						<td th:if="${entry.value.product.stock} gt 0" th:text="有">
-						<td th:if="${entry.value.product.stock} <= 0" th:text="無" style="color:red">
+							th:src="@{/pic/{picName}(picName=${cartItem.product.picName})}">
+						<td th:text="${cartItem.product.productName}">
+						<td th:text="${cartItem.product.price}">
+						<td th:text="${cartItem.quantity}">
+						<td id="productSubtotal_${cartItem.product.productId}" th:text="${cartItem.product.price}*${cartItem.quantity}">
+						<td th:if="${cartItem.product.stock} gt 0" th:text="有">
+						<td th:if="${cartItem.product.stock} <= 0" th:text="無" style="color:red">
 						<td><button type="button">刪除</button>
 				</table>
-				
 				<table style="margin-left: 300px; margin-top:50px">
 					<tr>
 						<td colspan="2">
 							共<label th:text="${session.cartItemDtoMap.size}"></label>項商品
-           					，數量***個
+<!-- 							，數量<label th:text=${#aggregates.sum(session.CartItems.![quantity==null?0:quantity])}></label>個 -->
 					<tr>
 						<td>產品金額總計
-						<td>$****元
+						<td><span id="subtotal"></span>
 					<tr>
 						<td>運費
-						<td>$****元
+						<td id="shippingFee">$****元
 					<tr>
 						<td>總金額
-						<td>$****元
+						<td id="totalAmount">$****元
 				</table>
 			</div>
 			
 			<!-- 如果會員尚未登入，則顯示提示訊息 -->
-			<h3 th:if="${session.userDto == null}">
+			<h3 th:if="${session.User == null}">
 				提醒您，您尚未登入，可能遺失您的購物車明細
 			</h3>
+			
 		</div>
+		
 	</div>
 	
 	<!-- footer區 -->
 	<div class="footer">
 		© 2023 XXXXXY. All rights reserved.
 	</div>
+	
+	<script>
+		//計算產品金額總計(id="subtotal")
+		calculateSubtotal();
+		//計算運費(id="shippingFee")
+		calculateShippingFee();
+		//計算總金額(id="totalAmount")
+		calculateTotalAmount();
+		
+	</script>
+	
+
 </body>
 </html>

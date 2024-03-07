@@ -9,8 +9,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import com.example.demo.vo.CartItem;
-import com.example.demo.vo.User;
+import com.example.demo.model.vo.CartItem;
+import com.example.demo.model.vo.User;
 
 @Mapper
 
@@ -30,7 +30,16 @@ public interface CartItemMapper {
 			+ "where cartId=#{cartId} order by cartItemId")
 	List<CartItem> findCartItemsByCartId(Integer cartId);
 	
+	@Select("select cartItemId,cartId,productId,quantity from cartItem "
+			+ "where cartId=#{cartId} and productId=#{productId}")
+	Optional<CartItem> ifSameProductInCart(Integer productId, Integer cartId);
+	
+	//Update
+	//給登入者使用-->新增的購物明細和原有的產品重複時，修改數量
+	@Update("update cartItem set quantity=#{quantity} where cartItemId=#{cartItemId}")
+	void updateCartItemQuantity(Integer cartItemId, Integer quantity);
+	
 	//Delete
 	@Delete("delete from cartItem where cartItemId=#{cartItemId}")
-	boolean deleteCartItemById(Integer cartItemId);
+	void deleteCartItemById(Integer cartItemId);
 }

@@ -1,98 +1,169 @@
 package com.example.demo.service.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.mapper.CartItemMapper;
 import com.example.demo.mapper.CartMapper;
+import com.example.demo.mapper.ProductMapper;
+import com.example.demo.model.dto.CartItemDto;
+import com.example.demo.model.dto.CartDto;
+import com.example.demo.model.dto.UserDto;
+import com.example.demo.model.vo.Cart;
+import com.example.demo.model.vo.CartItem;
 import com.example.demo.service.CartItemService;
-import com.example.demo.vo.CartItem;
-import com.example.demo.vo.User;
-import com.example.demo.vo.Cart;
+import com.example.demo.service.CartService;
 
 import jakarta.servlet.http.HttpSession;
 
 @Service
-public class CartItemServiceImpl implements CartItemService {
+public class CartItemServiceImpl implements CartItemService {	
 	@Autowired
-	private CartMapper cm;
+	private CartMapper cartMapper;
 	
 	@Autowired
-	private CartItemMapper cim;
+	private CartItemMapper cartItemMapper;
+	
+	@Autowired
+	private ProductMapper productMapper;
+	
+	@Autowired
+	private CartService cartService;
+	
+	@Autowired
+	private ModelMapper modelMapper;
 	
 	@Autowired
 	private HttpSession session;
 	
-
 	@Override
-	public void AddAnCartItem(Integer productId, Integer quantity) {
+	public void addAnCartItemDto(CartItemDto newCartItemDto) {
 		//檢查session，做為判斷的依據(以下3個session，都是在登入時建立)
-		User user =(User)session.getAttribute("User"); //是否有登入
-		Cart cart =(Cart)session.getAttribute("Cart"); //是否有未結帳購物車
-		List<CartItem> cartItems =(List<CartItem>)session.getAttribute("CartItems"); //未結帳購物車明細List
-		System.out.println(user);
-		System.out.println(cart);
-		System.out.println(cartItems);
+		UserDto userDto =(UserDto)session.getAttribute("userDto");
+		CartDto uncheckedCartDto =(CartDto)session.getAttribute("uncheckedCartDto");
+		Map<Integer,CartItemDto> cartItemDtoMap =(Map<Integer,CartItemDto>)session.getAttribute("cartItemDtoMap");
 		
-		
-		//1.使用者未登入
-		if(user == null) {
-			//A.若購物清單是空的-->建立一個List來收集資料
-			if(cartItems==null) {
-				cartItems=new ArrayList<>();
-			}
-			//【Both】List增加一筆明細進去
-			cartItems.add(new CartItem(productId,quantity));
-			//【Both】更新session
-			session.setAttribute("CartItems", cartItems);
-		}else {
-		//2.使用者已登入
-			System.out.println("User已登入");
-			Integer cartId;
-			//A.若還沒有未結帳購物車，新增一台購物車(系統依規則建立購物車單號)
-			if(cart==null) { 
-				//建立購物車物件-填入userId，設定isCheckout為false
-				cart = new Cart(user.getUserId());
-				//將此購物車物件新增至資料庫，此時資料庫自動產生cartId(Auto Increment)
-				cm.addCart(cart);
-				//從資料庫回查cartId
-				cartId=cm.getNotcheckedCartByUserId(user.getUserId()).get().getCartId();
-				//更新購物車物件，將cartId填入
-				cart.setCartId(cartId);
-				//更新購物車物件，將cartId及userId填入，以取得cartNo(命名規則:日期_userId_cartId)
-				cart.setCartNo(cartId,user.getUserId());
-				//更新資料庫，填入cartId
-				cm.updateCartNoByCartId(cart.getCartNo(), cartId);
-				//更新session
-				session.setAttribute("Cart", cart);
-				//New購物車明細(原本是null)
-				System.out.println("cartItems:"+cartItems);
-				cartItems=new ArrayList<>();
-				System.out.println("New ArrayList後，cartItems:"+cartItems);
-			
-			//B.已有未結帳購物車，則先取得cartId
-			}else {
-				cartId=cart.getCartId();
-			}
-			
-			//【Both】建立一筆購物車明細物件(建構式包含cartId)
-			CartItem cartItem = new CartItem(cartId,productId,quantity);
-			//【Both】List增加一筆明細進去
-			cartItems.add(cartItem);
-			//【Both】更新資料庫 (有登入者才會進資料庫)
-			cim.addCartItemForUser(cartItem);
-			//【Both】更新session
-			session.setAttribute("CartItems", cartItems);
+		//1. (會員及非會員)
+		// 若cartItemDtos為null，產生新的物件
+		if(cartItemDtoMap==null) {
+			cartItemDtoMap=new HashMap<>();
 		}
+		// 判斷新加入購物車的這項產品，是否和原有的productId重複
+		// 若重複則修改數量
+		for(Map.Entry<Integer,CartItemDto> entry : cartItemDtoMap.entrySet()){
+			Integer productId = entry.getKey();
+			CartItemDto cartItemDto = entry.getValue();
+			if(newCartItemDto.getProductId().equals(productId)) {
+				// 將修改後的 cartItemDto 放回原始映射中
+				cartItemDto.setQuantity(cartItemDto.getQuantity()+newCartItemDto.getQuantity());
+				break;
+			}
+		}
+		
+		// 若未重複則put新的一筆
+		updateProductInfoForCartItemDto(newCartItemDto);
+		cartItemDtoMap.putIfAbsent(newCartItemDto.getProductId(), newCartItemDto);
+		
+		// 更新Session-cartItemDtoMap
+		session.setAttribute("cartItemDtoMap", cartItemDtoMap);
+		
+		//2. (會員身分)
+		if(userDto != null) {
+			System.out.println("會員購買一件商品!");
+			// 若沒有購物車，建立新的購物車，並更新Session-uncheckedCartDto
+			if(uncheckedCartDto == null) {
+				cartService.createNewCart(userDto.getUserId());
+				uncheckedCartDto = cartService.getNotcheckedCartDtoByUserId(userDto.getUserId());
+				session.setAttribute("uncheckedCartDto", uncheckedCartDto);
+			}
+			
+			// 將購物明細加入資料庫 (單筆)
+			updateCartItemOrCreateNewToDB(newCartItemDto, uncheckedCartDto.getCartId());
+		}
+	}
+	
+	@Override
+	//適用情況: 使用者於登入前購物
+	public void saveCartInfoToDB(Map<Integer,CartItemDto> cartItemDtoMap, Integer userId) {
+		System.out.println("該使用者於登入前有購物行為");
+		// 查詢DB是否有未結帳購物車
+		Optional<Cart> cartOpt= cartMapper.getNotcheckedCartByUserId(userId);
+		// 若DB無未結帳購物車
+		Cart cart;
+		if(cartOpt.isEmpty()) {
+			//在資料庫建立新的購物車
+			cartService.createNewCart(userId);
+			cartOpt= cartMapper.getNotcheckedCartByUserId(userId);
+			cart = cartOpt.get();
+		}else {
+			cart = cartOpt.get();
+		}
+		
+		// 將購物明細加入資料庫 (多筆/Map)
+		updateCartItemOrCreateNewToDB(cartItemDtoMap,cart.getCartId());
 	}
 
 	@Override
-	public boolean deleteCartItemById(Integer cartItemId) {
+	public Map<Integer,CartItemDto> findCartItemDtosByCartId(Integer cartId){
+		List<CartItem> cartItems = cartItemMapper.findCartItemsByCartId(cartId);
+		Map<Integer,CartItemDto> cartItemDtoMap = new HashMap<>();
+		for(CartItem cartItem : cartItems) {
+			cartItemDtoMap.put(cartItem.getProductId(),
+					modelMapper.map(cartItem,CartItemDto.class));
+		}
+		return cartItemDtoMap;
+	}
+	
+	@Override
+	public void updateProductInfoForCartItemDto(CartItemDto cartItemDto) {
+		cartItemDto.setProduct(productMapper.getProductById(cartItemDto.getProductId()).get());
+	}
+	
+	@Override
+	public Boolean deleteCartItemById(Integer cartItemId) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	//以下為private方法
+	//將購物車資料新增至DB(多筆)
+	private void updateCartItemOrCreateNewToDB(Map<Integer,CartItemDto> cartItemDtoMap, Integer cartId) {
+		for(CartItemDto cartItemDto: cartItemDtoMap.values()) {
+			// 判斷資料庫內同一台購物車內，是否有相同的商品
+			// 有的話，update-->資料庫
+			Optional<CartItem> SameProductOpt = cartItemMapper.ifSameProductInCart(cartItemDto.getProductId(),cartId);
+			if(SameProductOpt.isPresent()) {
+				CartItem SameProduct = SameProductOpt.get();
+				cartItemMapper.updateCartItemQuantity(SameProduct.getCartItemId(), SameProduct.getQuantity()+cartItemDto.getQuantity());
+			// 沒有的話，add-->資料庫
+			}else {
+				cartItemDto.setCartId(cartId);
+				CartItem cartItem = modelMapper.map(cartItemDto, CartItem.class);
+				cartItemMapper.addCartItemForUser(cartItem);
+			}	
+		}
+	}
+	
+	//將購物車資料新增至DB(單筆)
+	private void updateCartItemOrCreateNewToDB(CartItemDto cartItemDto, Integer cartId) {
+		// 判斷資料庫內同一台購物車內，是否有相同的商品
+		// 有的話，update-->資料庫
+		Optional<CartItem> SameProductOpt = cartItemMapper.ifSameProductInCart(cartItemDto.getProductId(),cartId);
+		if(SameProductOpt.isPresent()) {
+			CartItem SameProduct = SameProductOpt.get();
+			cartItemMapper.updateCartItemQuantity(SameProduct.getCartItemId(), SameProduct.getQuantity()+cartItemDto.getQuantity());
+		// 沒有的話，add-->資料庫
+		}else {
+			cartItemDto.setCartId(cartId);
+			CartItem cartItem = modelMapper.map(cartItemDto, CartItem.class);
+			cartItemMapper.addCartItemForUser(cartItem);
+		}
+	}
 }
